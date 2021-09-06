@@ -6,7 +6,7 @@
 /*   By: abiari <abiari@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/29 14:04:55 by abiari            #+#    #+#             */
-/*   Updated: 2021/09/06 13:52:35 by abiari           ###   ########.fr       */
+/*   Updated: 2021/09/06 16:59:21 by abiari           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ namespace ft
 			template <class InputIterator>
          	vector (InputIterator first, InputIterator last, const allocator_type& alloc = allocator_type(), typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type = InputIterator()) : _alloc(alloc)
 			{
-				size_t i;
+				size_t i = 0;
 				_size = 0;
 				for (InputIterator it = first; it < last; it++)
 					i++;
@@ -66,7 +66,7 @@ namespace ft
 			virtual ~vector()
 			{
 				for (size_t i = 0; i < _size; i++)
-					_alloc.destroy(_data);
+					_alloc.destroy(_data + i);
 				_alloc.deallocate(_data, _size);
 			}
 			
@@ -74,7 +74,7 @@ namespace ft
 			vector&	operator=(const vector& x)
 			{
 				for (size_t i = 0; i < _size; i++)
-					_alloc.destroy(_data);
+					_alloc.destroy(_data + i);
 				_alloc.deallocate(_data, _capacity);
 				_data = _alloc.allocate(x._capacity);
 				for (size_t i = 0; i < x._size; i++)
@@ -85,37 +85,29 @@ namespace ft
 			}
 
 			/** -------------------------------- ITERATORS --------------------------------**/
-			iterator		begin()
+			iterator				begin() { return (iterator(_data)); }
+			const_iterator			begin() const { return (const_iterator(_data)); }
+			iterator				end() { return (iterator(_data + _size)); }
+			const_iterator			end() const { return (const_iterator(_data + _size)); }
+			reverse_iterator		rbegin()
 			{
-				if (_size == 0)
-					iterator	it;
-				else
-					iterator	it(_data);
-				return it;
+				iterator it(_data + (_size - 1));
+				return (reverse_iterator(it - 1)); 
 			}
-			const_iterator	begin() const
+			const_reverse_iterator	rbegin() const
 			{
-				if (_size == 0)
-					const_iterator	it;
-				else
-					const_iterator	it(_data);
-				return it;
+				iterator it(_data + (_size - 1));
+				return (reverse_iterator(it - 1)); 
 			}
-			iterator		end()
+			reverse_iterator		rend()
 			{
-				if (_size == 0)
-					iterator it;
-				else
-					iterator it(_data + _size);
-				return it;
+				iterator it(_data);
+				return (reverse_iterator(it - 1));
 			}
-			const_iterator	end() const
+			const_reverse_iterator	rend() const
 			{
-				if (_size == 0)
-					iterator it;
-				else
-					iterator it(_data + _size);
-				return it;
+				iterator it(_data);
+				return (reverse_iterator(it - 1));
 			}
 			
 			/** -------------------------------- CAPACITY --------------------------------**/
@@ -125,10 +117,32 @@ namespace ft
 			{
 				if (n < _size)
 				{
-					
+					for (size_t i = _size - n; i < _size; i++)
+						_alloc.destroy(_data + i);
+					_size = n;
 				}
-				 // test to see if i should destroy and deallocate first then refill a new memory
-				 ;
+				if (n > _size)
+				{
+					if (n > _capacity)
+					{
+						value_type *_temp = _alloc.allocate(_capacity * 2);
+						for (size_t i = 0; i < _size; i++)
+							_alloc.construct(_temp + i, *(_data + i));
+						for (size_t i = 0; i < _size; i++)
+							_alloc.destroy(_data + i);
+						_alloc.deallocate(_data, _capacity);
+						_data = _temp;
+						for (size_t i = _size; i < n; i++)
+							_alloc.construct(_data + i, val);
+						_size = n;
+						_capacity = n;
+					}
+					else
+					{
+						for (size_t i = _size; i < n; i++)
+							_alloc.construct(_data + i, val);
+					}
+				}
 			}
 			size_type	capacity() const { return _capacity; }
 			bool		empty() const { return (_size == 0); }
@@ -136,7 +150,7 @@ namespace ft
 			{
 				if (n > _capacity)
 				{
-					_alloc.allocate(n, _data);
+					_data = _alloc.allocate(n, _data);
 					_capacity = n;
 				}
 			}
@@ -147,14 +161,14 @@ namespace ft
 			reference		at(size_type n)
 			{
 				if (n >= _size)
-					throw std::out_of_range();
+					throw std::out_of_range("element is out of range");
 				else
 					return _data[n];
 			}
 			const_reference	at(size_type n) const
 			{
 				if (n >= _size)
-					throw std::out_of_range();
+					throw std::out_of_range("element is out of range");
 				else
 					return _data[n];
 			}
@@ -164,17 +178,17 @@ namespace ft
 			const_reference	back() const { return _data[_size - 1]; }
 			
 			/** -------------------------------- MODIFIERS --------------------------------**/
-			template <class InputIterator>
-			void	assign(InputIterator first, InputIterator last, typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type = InputIterator())
-			{
-				;
-			}
-			void	assign(size_type n, const value_type& val)
-			{
-				_alloc.destroy(_data);
-				_alloc.deallocate(_data, _capacity);
+			// template <class InputIterator>
+			// void	assign(InputIterator first, InputIterator last, typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type = InputIterator())
+			// {
+			// 	;
+			// }
+			// void	assign(size_type n, const value_type& val)
+			// {
+			// 	_alloc.destroy(_data);
+			// 	_alloc.deallocate(_data, _capacity);
 				
-			}
+			// }
 			
 			
 			/** -------------------------------- GETTERS --------------------------------**/

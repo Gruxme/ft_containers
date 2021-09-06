@@ -6,7 +6,7 @@
 /*   By: abiari <abiari@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/01 18:40:37 by abiari            #+#    #+#             */
-/*   Updated: 2021/09/03 16:15:25 by abiari           ###   ########.fr       */
+/*   Updated: 2021/09/06 16:41:09 by abiari           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,9 +31,12 @@ namespace	ft
 			reverse_iterator() : _iter() {}
 			explicit reverse_iterator (iterator_type it) : _iter(it) {}
 			template <class Iter>
-			reverse_iterator (const reverse_iterator<Iter>& rev_it) : _iter(rev_it.base())
+			reverse_iterator (const reverse_iterator<Iter>& rev_it) { this->operator=(rev_it); }
+			template< class Iter >
+			reverse_iterator& operator=( const reverse_iterator<Iter>& other )
 			{
-				
+				this->_iter = other.base();
+				return *this;
 			}
 			iterator_type	base() const { return _iter; }
 			

@@ -6,7 +6,7 @@
 /*   By: abiari <abiari@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/01 15:20:34 by abiari            #+#    #+#             */
-/*   Updated: 2021/09/03 15:32:42 by abiari           ###   ########.fr       */
+/*   Updated: 2021/09/06 16:54:22 by abiari           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ namespace ft
 			/** -------------------------------- ASSIGNMENT --------------------------------**/
 			random_access_iterator&	operator=(const random_access_iterator& rhs)
 			{
-				this->m_ptr = rhs.m_ptr;
+				this->m_ptr = rhs.base();
 				return (*this);
 			}
 			random_access_iterator&	operator-=(difference_type n)
@@ -61,7 +61,7 @@ namespace ft
 			}
 			random_access_iterator	operator++(int)
 			{
-				random_access_iterator tmp(this);
+				random_access_iterator tmp = *this;
 				this->m_ptr += 1;
 				return tmp;
 			}
@@ -72,7 +72,7 @@ namespace ft
 			}
 			random_access_iterator	operator--(int)
 			{
-				random_access_iterator tmp(this);
+				random_access_iterator tmp = *this;
 				this->m_ptr -= 1;
 				return tmp;
 			}

@@ -4,37 +4,43 @@
 
 int	main(void)
 {
-	std::vector<int>	defaultV;
-	std::vector<int>	fillV(10, 5);
-	ft::vector<int>		defaultC;
-	ft::vector<int>		fillC(10, 5);
+	std::vector<int>	def;
+	std::vector<int>	fill(10, 5);
+	std::vector<int>	iter_construct(fill.begin(), fill.end());
+	std::vector<int>::iterator	it;
+	std::vector<int>::reverse_iterator	rev_it;
 
-	// for (size_t i = 0; i < 20; i++)
-	// {
-	// 	fillV.push_back(i);
-	// 	std::cout << "Vector size: " << fillV.size() << std::endl;
-	// 	std::cout << "Vector capacity: " << fillV.capacity() << std::endl;
-	// }
-	std::cout << "Vector size: " << fillC.size() << std::endl;
-	std::cout << "Vector capacity: " << fillC.capacity() << std::endl;
-	for (size_t i = 0; i < 10; i++)
+
+	ft::vector<int>		my_def;
+	ft::vector<int>		my_fill(10, 5);
+	ft::vector<int>		my_iter_construct(my_fill.begin(), my_fill.end());
+	ft::vector<int>::iterator	my_it;
+	ft::vector<int>::reverse_iterator	my_rev_it;
+
+	rev_it = fill.rbegin();
+	rev_it -= 3;
+	std::cout << "rev_It value: " << *rev_it << " on address: " << std::endl;
+	std::cout << "size: " << fill.size() << " capacity: " << fill.capacity() << std::endl;
+	try
 	{
-		std::cout << "Value " << i << ": " << fillC[i] << std::endl;
+		std::cout << "element at index 9: " << fill.at(1) << std::endl;
 	}
-	// fillV.resize(40, 5);
-	// std::cout << "Vector size: " << fillV.size() << std::endl;
-	// std::cout << "Vector capacity: " << fillV.capacity() << std::endl;
-	// fillV.resize(10);
-	// std::cout << "Vector size: " << fillV.size() << std::endl;
-	// std::cout << "Vector capacity: " << fillV.capacity() << std::endl;
-	// fillV.reserve(50);
-	// std::cout << "Vector size: " << fillV.size() << std::endl;
-	// std::cout << "Vector capacity: " << fillV.capacity() << std::endl;
-	// std::cout << "Vector size: " << defaultV.size() << std::endl;
-	// std::cout << "Vector capacity: " << defaultV.capacity() << std::endl;
-	// std::cout << "Vector max size: " << defaultV.max_size() << std::endl;
+	catch(const std::out_of_range& e)
+	{
+		std::cerr << e.what() << '\n';
+	}
+	
 
-	// std::cout << "Vector size: " << fillV.size() << std::endl;
-	// std::cout << "Vector capacity: " << fillV.capacity() << std::endl;
-	// std::cout << "Vector max size: " << fillV.max_size() << std::endl;
+	my_rev_it = my_fill.rbegin();
+	my_rev_it -= 3;
+	std::cout << "My rev_It value: " << *my_rev_it << " on address: " << std::endl;
+	std::cout << "My size: " << fill.size() << " My capacity: " << fill.capacity() << std::endl;
+	try
+	{
+		std::cout << "element at index 9: " << my_fill.at(1) << std::endl;
+	}
+	catch(const std::out_of_range& e)
+	{
+		std::cerr << e.what() << '\n';
+	}
 }
