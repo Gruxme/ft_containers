@@ -6,7 +6,7 @@
 /*   By: abiari <abiari@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/01 15:20:34 by abiari            #+#    #+#             */
-/*   Updated: 2021/09/06 16:54:22 by abiari           ###   ########.fr       */
+/*   Updated: 2021/09/15 16:42:36 by abiari           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ namespace ft
 			/** -------------------------------- MEMBER ACCESS --------------------------------**/
 			reference	operator*() const { return (*m_ptr); }
 			pointer		operator->() const { return &(operator*()); }
-			reference	operator[](difference_type b) const { return (*(m_ptr + b)); }
+			reference	operator[](difference_type b) const { return (m_ptr[b]); }
 			
 			/** -------------------------------- INCREMENT/DECREMENT --------------------------------**/
 			random_access_iterator&	operator++()
@@ -68,7 +68,7 @@ namespace ft
 			random_access_iterator&	operator--()
 			{
 				this->m_ptr -= 1;
-				return m_ptr;
+				return *this;
 			}
 			random_access_iterator	operator--(int)
 			{
@@ -76,6 +76,21 @@ namespace ft
 				this->m_ptr -= 1;
 				return tmp;
 			}
+			
+			/** -------------------------------- ARITHMETIC --------------------------------**/
+			random_access_iterator operator+(difference_type n)
+			{
+				random_access_iterator tmp(*this);
+				tmp.m_ptr += n;
+				return (tmp);
+			}
+			random_access_iterator operator-(difference_type n)
+			{
+				random_access_iterator tmp(*this);
+				tmp.m_ptr -= n;
+				return (tmp);
+			}
+			
 			/** -------------------------------- GETTER --------------------------------**/
 			pointer	base() const { return this->m_ptr; }
 
@@ -91,17 +106,17 @@ namespace ft
 
 	/** -------------------------------- ARITHMETIC --------------------------------**/
 	template<class T>
-	random_access_iterator<T>	operator+(random_access_iterator<T>& lhs, typename random_access_iterator<T>::difference_type n)
+	random_access_iterator<T>	operator+(typename random_access_iterator<T>::difference_type n, random_access_iterator<T> rhs)
 	{
-		return (lhs.operator+=(n));
+		return (rhs.operator+(n));
 	}
 	template<class T>
-	random_access_iterator<T>	operator-(random_access_iterator<T>& lhs, typename random_access_iterator<T>::difference_type n)
+	random_access_iterator<T>	operator-(typename random_access_iterator<T>::difference_type n, random_access_iterator<T> rhs)
 	{
-		return (lhs.operator-=(n));
+		return (rhs.operator-(n));
 	}
 	template<class T>
-	typename random_access_iterator<T>::difference_type	operator-(const random_access_iterator<T>& lhs, const random_access_iterator<T>& rhs)
+	typename random_access_iterator<T>::difference_type	operator-(const random_access_iterator<T>& lhs, const random_access_iterator<T> rhs)
 	{
 		return lhs.base() - rhs.base();
 	}

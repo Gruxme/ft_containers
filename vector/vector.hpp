@@ -6,7 +6,7 @@
 /*   By: abiari <abiari@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/29 14:04:55 by abiari            #+#    #+#             */
-/*   Updated: 2021/09/06 16:59:21 by abiari           ###   ########.fr       */
+/*   Updated: 2021/09/15 16:29:08 by abiari           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,43 +45,43 @@ namespace ft
 			{
 				_data = _alloc.allocate(n);
 				for (size_t i = 0; i < n; i++)
-					_alloc.construct(_data + i, val);
+					*(_data + i) = val;
 			}
 			template <class InputIterator>
          	vector (InputIterator first, InputIterator last, const allocator_type& alloc = allocator_type(), typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type = InputIterator()) : _alloc(alloc)
 			{
 				size_t i = 0;
 				_size = 0;
-				for (InputIterator it = first; it < last; it++)
+				for (InputIterator it = first; it != last; it++)
 					i++;
 				_capacity = i;
 				_data = _alloc.allocate(_capacity);
 				for (size_t j = 0; j < i; j++)
 				{
-					_alloc.construct(_data + j, *(first + j));
+					*(_data + j) = *(first + j);
 					_size++;
 				}
 			}
 			vector (const vector& src) { this->operator=(src); }
 			virtual ~vector()
 			{
-				for (size_t i = 0; i < _size; i++)
-					_alloc.destroy(_data + i);
 				_alloc.deallocate(_data, _size);
 			}
 			
 			/** -------------------------------- ASSIGNMENT --------------------------------**/
 			vector&	operator=(const vector& x)
 			{
-				for (size_t i = 0; i < _size; i++)
-					_alloc.destroy(_data + i);
-				_alloc.deallocate(_data, _capacity);
-				_data = _alloc.allocate(x._capacity);
+				if (x.capacity() > _capacity)
+				{
+					_alloc.deallocate(_data, _capacity);
+					_data = _alloc.allocate(x.capacity());
+				}
 				for (size_t i = 0; i < x._size; i++)
-					_alloc.construct(_data + i, *(x._data + i));
+					*(_data + i) = *(x._data + i);
 				_alloc = x.get_allocator();
 				_size = x.size();
 				_capacity = x.capacity();
+				return *this;
 			}
 
 			/** -------------------------------- ITERATORS --------------------------------**/
@@ -91,23 +91,27 @@ namespace ft
 			const_iterator			end() const { return (const_iterator(_data + _size)); }
 			reverse_iterator		rbegin()
 			{
-				iterator it(_data + (_size - 1));
-				return (reverse_iterator(it - 1)); 
+				if (_capacity != 0)
+					return reverse_iterator(this->end());
+				return (reverse_iterator()); 
 			}
 			const_reverse_iterator	rbegin() const
 			{
-				iterator it(_data + (_size - 1));
-				return (reverse_iterator(it - 1)); 
+				if (_capacity != 0)
+					return reverse_iterator(this->end());
+				return (reverse_iterator()); 
 			}
 			reverse_iterator		rend()
 			{
-				iterator it(_data);
-				return (reverse_iterator(it - 1));
+				if (_capacity != 0)
+					return reverse_iterator(this->begin());
+				return (reverse_iterator()); 
 			}
 			const_reverse_iterator	rend() const
 			{
-				iterator it(_data);
-				return (reverse_iterator(it - 1));
+				if (_capacity != 0)
+					return reverse_iterator(this->begin());
+				return (reverse_iterator()); 
 			}
 			
 			/** -------------------------------- CAPACITY --------------------------------**/
@@ -116,31 +120,29 @@ namespace ft
 			void 		resize (size_type n, value_type val = value_type())
 			{
 				if (n < _size)
-				{
-					for (size_t i = _size - n; i < _size; i++)
-						_alloc.destroy(_data + i);
 					_size = n;
-				}
 				if (n > _size)
 				{
 					if (n > _capacity)
 					{
-						value_type *_temp = _alloc.allocate(_capacity * 2);
+						value_type *_temp;
+						size_type newCapacity = _capacity;
+						while (n > newCapacity)
+							newCapacity *= 2;
+						_temp = _alloc.allocate(newCapacity);
 						for (size_t i = 0; i < _size; i++)
-							_alloc.construct(_temp + i, *(_data + i));
-						for (size_t i = 0; i < _size; i++)
-							_alloc.destroy(_data + i);
+							*(_temp + i) = *(_data + i);
 						_alloc.deallocate(_data, _capacity);
 						_data = _temp;
 						for (size_t i = _size; i < n; i++)
-							_alloc.construct(_data + i, val);
+							*(_data + i) = val;
 						_size = n;
-						_capacity = n;
+						_capacity = newCapacity;
 					}
 					else
 					{
 						for (size_t i = _size; i < n; i++)
-							_alloc.construct(_data + i, val);
+							*(_data + i) = val;
 					}
 				}
 			}
@@ -178,19 +180,116 @@ namespace ft
 			const_reference	back() const { return _data[_size - 1]; }
 			
 			/** -------------------------------- MODIFIERS --------------------------------**/
-			// template <class InputIterator>
-			// void	assign(InputIterator first, InputIterator last, typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type = InputIterator())
+			template <class InputIterator>
+			void	assign(InputIterator first, InputIterator last, typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type = InputIterator())
+			{
+				size_t	n = 0;
+				for (InputIterator it = first; it != last; it++)
+					n++;
+				if (n > _capacity)
+				{
+					_size = 0;
+					_alloc.deallocate(_data, _capacity);
+					while (n > _capacity)
+						_capacity *= 2;
+					_data = _alloc.allocate(_capacity);
+					for (size_t i = 0; i < n; i++)
+					{
+						*(_data + n) = first[n];
+						_size++;
+					}
+				}
+				else
+				{
+					_size = 0;
+					for (size_t i = 0; i < _size; i++)
+						_alloc.destroy(_data + i);
+					for (size_t i = 0; i < n; i++)
+					{
+						*(_data + n) = first[n];
+						_size++;
+					}
+				}
+			}
+			void	assign(size_type n, const value_type& val)
+			{
+				if (n > _capacity)
+				{
+					_size = 0;
+					_alloc.deallocate(_data, _capacity);
+					while (n > _capacity)
+						_capacity *= 2;
+					_data = _alloc.allocate(_capacity);
+					for (size_t i = 0; i < n; i++)
+					{
+						*(_data + i) = val;
+						_size++;
+					}
+				}
+				else
+				{
+					_size = 0;
+					for (size_t i = 0; i < n; i++)
+					{
+						*(_data + i) = val;
+						_size++;
+					}
+				}
+			}
+			void	push_back(const value_type& val)
+			{
+				if (_size + 1 > _capacity)
+				{
+					size_type newCapacity = _capacity * 2;
+					if (newCapacity == 0)
+						newCapacity += 1;
+					value_type *_temp = _alloc.allocate(newCapacity);
+					for (size_t i = 0; i < _size; i++)
+						*(_temp + i) = *(_data + i);
+					_alloc.deallocate(_data, _capacity);
+					_data = _temp;
+					*(_data + _size) = val;
+					_size += 1;
+					_capacity = newCapacity;
+				}
+				else
+				{
+					*(_data + _size) = val;
+					_size += 1;
+				}
+			}
+			void	pop_back() { _size--; }
+			// iterator	insert(iterator position, const value_type& val)
 			// {
-			// 	;
+			// 	size_t	positionIndex = 0;
+			// 	for (iterator it = this->begin(); it != position; it++)
+			// 		positionIndex++
+				
+			// 	if (_size + 1 > _capacity)
+			// 	{
+			// 		size_type newCapacity = _capacity * 2;
+			// 		value_type *_temp = _alloc.allocate(newCapacity);
+			// 		for (size_t i = 0; i < _size; i++)
+			// 			_alloc.construct(_temp + i, *(_data + i));
+			// 		for (size_t i = 0; i < _size; i++)
+			// 			_alloc.destroy(_data + i);
+			// 		_alloc.deallocate(_data, _capacity);
+					
+			// 	}
+			// 	else
+			// 	{
+					
+			// 	}
 			// }
-			// void	assign(size_type n, const value_type& val)
+			// void		insert(iterator position, size_type nm const value_type& val)
 			// {
-			// 	_alloc.destroy(_data);
-			// 	_alloc.deallocate(_data, _capacity);
 				
 			// }
-			
-			
+			// template <class InputIterator>
+			// void		insert(iterator position, InputIterator first, InputIterator last, typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type = InputIterator())
+			// {
+				
+			// }
 			/** -------------------------------- GETTERS --------------------------------**/
 			allocator_type	get_allocator() const
 			{
