@@ -6,7 +6,7 @@
 /*   By: abiari <abiari@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/29 14:04:55 by abiari            #+#    #+#             */
-/*   Updated: 2021/09/15 16:29:08 by abiari           ###   ########.fr       */
+/*   Updated: 2021/10/03 18:20:19 by abiari           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 #include "random_access_iterator.hpp"
 #include "iterator_traits.hpp"
 #include "reverse_iterator.hpp"
-#include "tools.hpp"
+#include "../tools.hpp"
 #include <memory>
 #include <iterator>
 #include <stdexcept>
@@ -202,8 +202,11 @@ namespace ft
 				else
 				{
 					_size = 0;
-					for (size_t i = 0; i < _size; i++)
-						_alloc.destroy(_data + i);
+					if (!ft::is_integral<value_type>::value)
+					{
+						for (size_t i = 0; i < _size; i++)
+							_alloc.destroy(_data + i);
+					}
 					for (size_t i = 0; i < n; i++)
 					{
 						*(_data + n) = first[n];
@@ -259,37 +262,191 @@ namespace ft
 				}
 			}
 			void	pop_back() { _size--; }
-			// iterator	insert(iterator position, const value_type& val)
-			// {
-			// 	size_t	positionIndex = 0;
-			// 	for (iterator it = this->begin(); it != position; it++)
-			// 		positionIndex++
+			iterator	insert(iterator position, const value_type& val)
+			{
+				size_t	positionIndex = 0;
+				for (iterator it = this->begin(); it != position; it++)
+					positionIndex++;
 				
-			// 	if (_size + 1 > _capacity)
-			// 	{
-			// 		size_type newCapacity = _capacity * 2;
-			// 		value_type *_temp = _alloc.allocate(newCapacity);
-			// 		for (size_t i = 0; i < _size; i++)
-			// 			_alloc.construct(_temp + i, *(_data + i));
-			// 		for (size_t i = 0; i < _size; i++)
-			// 			_alloc.destroy(_data + i);
-			// 		_alloc.deallocate(_data, _capacity);
-					
-			// 	}
-			// 	else
-			// 	{
-					
-			// 	}
-			// }
-			// void		insert(iterator position, size_type nm const value_type& val)
-			// {
-				
-			// }
-			// template <class InputIterator>
-			// void		insert(iterator position, InputIterator first, InputIterator last, typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type = InputIterator())
-			// {
-				
-			// }
+				if (_size + 1 > _capacity)
+				{
+					size_type newCapacity = _capacity * 2;
+					value_type *_temp = _alloc.allocate(newCapacity);
+					int	j = 0;
+					_size++;
+					for (size_t i = 0; i < _size; i++)
+					{
+						if (i == positionIndex)
+						{
+							_alloc.construct(_temp + j, val);
+							j++;
+						}
+						_alloc.construct(_temp + j, *(_data + i));
+						j++;
+					}
+					if (!ft::is_integral<value_type>::value)
+					{
+						for (size_t i = 0; i < _size - 1; i++)
+							_alloc.destroy(_data + i);
+					}
+					_alloc.deallocate(_data, _capacity);
+					_capacity = newCapacity;
+					_data = _temp;
+				}
+				else
+				{
+					for (size_t i = _size - 1; i >= positionIndex; i--)
+					{
+						_data[i + 1] = _data[i];
+					}
+					_data[positionIndex] = val;
+					_size++;
+				}
+				return (iterator(_data + positionIndex));
+			}
+			void		insert(iterator position, size_type n, const value_type& val)
+			{
+				size_t	positionIndex = 0;
+				for (iterator it = this->begin(); it != position; it++)
+					positionIndex++;
+
+				if(_size + n > _capacity)
+				{
+					size_type newCapacity = _capacity * 2;
+					size_t	j = 0;
+					while(newCapacity < _size + n)
+						newCapacity *= 2;
+					value_type *_temp = _alloc.allocate(newCapacity);
+					for (size_t i = 0; i < _size; i++)
+					{
+						if (i == positionIndex)
+						{
+							while(j < n)
+							{
+								_alloc.construct(_temp + j, val);
+								j++;
+							}
+						}
+						_alloc.construct(_temp + j, *(_data + i));
+						j++;
+					}
+					if (!ft::is_integral<value_type>::value)
+					{
+						for (size_t i = 0; i < _size - n; i++)
+							_alloc.destroy(_data + i);
+					}
+					_alloc.deallocate(_data, _capacity);
+					_capacity = newCapacity;
+					_data = _temp;
+				}
+				else
+				{
+					for (size_t i = _size - 1; i >= positionIndex; i--)
+						_data[i + n] = _data[i];
+					for(size_t i = 0; i < n; i++)
+						_data[positionIndex + i] = val;
+					_size += n;
+				}
+			}
+			template <class InputIterator>
+			void		insert(iterator position, InputIterator first, InputIterator last, typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type = InputIterator())
+			{
+				size_t	positionIndex = 0;
+				size_t	n = 0;
+				for (iterator it = this->begin(); it != position; it++)
+					positionIndex++;
+				for(iterator it = first; it!= last; it++)
+					n++;
+				if(_size + n > _capacity)
+				{
+					size_type newCapacity = _capacity * 2;
+					size_t	j = 0;
+					while(newCapacity < _size + n)
+						newCapacity *= 2;
+					value_type *_temp = _alloc.allocate(newCapacity);
+					for (size_t i = 0; i < _size; i++)
+					{
+						if (i == positionIndex)
+						{
+							while(j < n)
+							{
+								_alloc.construct(_temp + j, *first);
+								j++;
+								first++;
+							}
+						}
+						_alloc.construct(_temp + j, *(_data + i));
+						j++;
+					}
+					if (!ft::is_integral<value_type>::value)
+					{
+						for (size_t i = 0; i < _size - n; i++)
+							_alloc.destroy(_data + i);
+					}
+					_alloc.deallocate(_data, _capacity);
+					_capacity = newCapacity;
+					_data = _temp;
+				}
+				else
+				{
+					for (size_t i = _size - 1; i >= positionIndex; i--)
+						_data[i + n] = _data[i];
+					for(size_t i = 0; i < n; i++)
+					{
+						_data[positionIndex + i] = *first;
+						first++;
+					}
+					_size += n;
+				}
+			}
+			iterator erase (iterator position)
+			{
+				size_t	positionIndex = 0;
+				for (iterator it = this->begin(); it != position; it++)
+					positionIndex++;
+				for (size_t i = positionIndex; i < _size - 1; i++)
+				{
+					_data[i] = _data[i + 1];
+				}
+				_size--;
+				return (iterator(_data + positionIndex));
+			}
+			iterator erase (iterator first, iterator last)
+			{
+				size_t	positionIndex = 0;
+				for (iterator it = this->begin(); it != first; it++)
+					positionIndex++;
+				size_t n = 0;
+				for (iterator it = first; it != last; it++)
+					n++;
+				for (size_t i = positionIndex; i < _size - n; i++)
+				{
+					_data[i] = _data[i + n];
+				}
+				_size--;
+				return (iterator(_data + positionIndex));
+			}
+			void		swap(vector& x)
+			{
+				size_type tmp = _size;
+				_size = x._size;
+				x._size = tmp;
+				tmp = _capacity;
+				_capacity = x._capacity;
+				x._capacity = tmp;
+				value_type *temp = _data;
+				_data = x._data;
+				x._data = temp;
+			}
+			void		clear()
+			{
+				if(!ft::is_integral<value_type>::value)
+				{
+					for (size_t i = 0; i < _size; i++)
+						_alloc.destroy(_data[i]);
+				}
+				_size = 0;
+			}
 			/** -------------------------------- GETTERS --------------------------------**/
 			allocator_type	get_allocator() const
 			{
@@ -302,4 +459,44 @@ namespace ft
 			size_type		_size;
 			value_type		*_data;
 	};
+	template < class T, class Alloc>
+		bool operator== (const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs)
+		{
+			if(lhs.size() == rhs.size())
+				return ft::equal(lhs.begin(), lhs.end(), rhs.begin());
+			else
+				return false;
+		}
+	template < class T, class Alloc>
+		bool operator!= (const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs)
+		{
+			return (!ft::operator==(lhs, rhs));
+		}
+	template < class T, class Alloc>
+ 		bool operator<  (const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs)
+		{
+			return ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+		}
+	template < class T, class Alloc>
+ 		bool operator>  (const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs)
+		{
+			return (ft::operator<(rhs, lhs));
+		}
+	template < class T, class Alloc>
+ 		bool operator<=  (const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs)
+		{
+			return (!ft::operator<(rhs, lhs));
+		}
+	template < class T, class Alloc>
+ 		bool operator>=  (const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs)
+		{
+			return (!ft::operator<(lhs, rhs));
+		}
+	
+	template <class T, class Alloc>
+  		void swap (vector<T,Alloc>& x, vector<T,Alloc>& y)
+		{
+			x.swap(y);
+		}
 }
+
