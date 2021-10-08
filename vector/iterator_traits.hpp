@@ -6,7 +6,7 @@
 /*   By: abiari <abiari@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/29 14:24:37 by abiari            #+#    #+#             */
-/*   Updated: 2021/09/03 15:32:23 by abiari           ###   ########.fr       */
+/*   Updated: 2021/10/04 17:05:18 by abiari           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,11 +16,11 @@
 
 namespace ft
 {
-	class random_access_iterator_tag {};
-	class input_iterator_tag {};
-	class output_iterator_tag {};
-	class forward_iterator_tag {};
-	class bidirectional_iterator_tag {};
+	// class random_access_iterator_tag {};
+	// class input_iterator_tag {};
+	// class output_iterator_tag {};
+	// class forward_iterator_tag {};
+	// class bidirectional_iterator_tag {};
 	
 	template < class T >
 	struct iterator_traits
@@ -39,7 +39,7 @@ namespace ft
 		typedef T										value_type;
         typedef T*										pointer;
         typedef T&										reference;
-        typedef typename ft::random_access_iterator_tag	iterator_category;
+        typedef typename std::random_access_iterator_tag	iterator_category;
 	};
 	
 	template < class T >
@@ -49,7 +49,7 @@ namespace ft
 		typedef T										value_type;
         typedef const T*								pointer;
         typedef const T&								reference;
-        typedef typename ft::random_access_iterator_tag	iterator_category;
+        typedef typename std::random_access_iterator_tag	iterator_category;
 	};
 	
 	template < class Category, class T, class Distance = ptrdiff_t, class Pointer = T*, class Reference = T& >

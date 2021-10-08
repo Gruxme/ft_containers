@@ -128,16 +128,20 @@ int main()
 	// 	std::cout << &(bar[i]) << " : " << bar[i] << " ";
 	// std::cout << std::endl;
 
-	std::vector<int> foo;
-	for (size_t i = 0; i < 10; i++)
-		foo.push_back(i);
-	for (size_t i = 0; i < 20; i++)
-		std::cout << foo[i] << " ";
-	std::cout << std::endl;
+	// std::vector<int> foo;
+	// for (size_t i = 0; i < 10; i++)
+	// 	foo.push_back(i);
+	// for (size_t i = 0; i < 20; i++)
+	// 	std::cout << foo[i] << " ";
+	// std::cout << std::endl;
 
-	foo.erase(foo.begin() + 2, foo.begin() + 5);
-	for (size_t i = 0; i < 20; i++)
-		std::cout << foo[i] << " ";
-	std::cout << std::endl;
+	// foo.erase(foo.begin() + 2, foo.begin() + 5);
+	// for (size_t i = 0; i < 20; i++)
+	// 	std::cout << foo[i] << " ";
+	// std::cout << std::endl;
+	ft::vector<int> const v(4,5);
+	
+	// ft::vector<int>::const_reverse_iterator rit = v.rbegin();
+	std::cout << (&(*v.rbegin()) == &(*--v.end())) << std::endl;
 	return 0;
 }

@@ -6,7 +6,7 @@
 /*   By: abiari <abiari@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/01 18:40:37 by abiari            #+#    #+#             */
-/*   Updated: 2021/09/15 16:25:26 by abiari           ###   ########.fr       */
+/*   Updated: 2021/10/04 18:38:21 by abiari           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,10 +30,10 @@ namespace	ft
 			
 			reverse_iterator() : _iter() {}
 			explicit reverse_iterator (iterator_type it) : _iter(it) {}
-			template <class Iter>
-			reverse_iterator (const reverse_iterator<Iter>& rev_it) { this->operator=(rev_it); }
-			template< class Iter >
-			reverse_iterator& operator=( const reverse_iterator<Iter>& other )
+			reverse_iterator (const reverse_iterator& rev_it) { this->operator=(rev_it); }
+			template<typename Iter>
+			reverse_iterator (reverse_iterator<Iter> const& it): _iter(it.base()) {}
+			reverse_iterator& operator=( const reverse_iterator& other )
 			{
 				this->_iter = other.base();
 				return *this;
@@ -68,7 +68,7 @@ namespace	ft
 			reverse_iterator	operator-(difference_type n) const
 			{
 				reverse_iterator	tmp(this->_iter);
-				tmp->_iter += n;
+				tmp._iter += n;
 				return (tmp);
 				
 			}
@@ -88,10 +88,6 @@ namespace	ft
 				this->_iter += n;
 				return (*this);
 			}
-			operator	reverse_iterator<const iterator_type>() const
-			{
-				return reverse_iterator<const iterator_type>(_iter);
-			}
 		private:
 			iterator_type	_iter;
 	};
@@ -103,7 +99,7 @@ namespace	ft
 	template <class Iterator>
 	typename reverse_iterator<Iterator>::difference_type	operator-(const reverse_iterator<Iterator>& lhs, const reverse_iterator<Iterator>& rhs)
 	{
-		return (lhs.base() - rhs.base());
+		return (rhs.base() - lhs.base());
 	}
 	
 	template <class Iterator>

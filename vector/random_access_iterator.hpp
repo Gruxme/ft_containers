@@ -6,7 +6,7 @@
 /*   By: abiari <abiari@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/01 15:20:34 by abiari            #+#    #+#             */
-/*   Updated: 2021/09/15 16:42:36 by abiari           ###   ########.fr       */
+/*   Updated: 2021/10/04 15:39:16 by abiari           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,14 +17,14 @@
 namespace ft
 {
 	template< class T >
-	class random_access_iterator : public ft::iterator<ft::random_access_iterator_tag, T>
+	class random_access_iterator : public ft::iterator<std::random_access_iterator_tag, T>
 	{
 		public:
-    		typedef typename ft::iterator<ft::random_access_iterator_tag, T>::iterator_category	iterator_category;
-			typedef typename ft::iterator<ft::random_access_iterator_tag, T>::value_type        value_type;
-    		typedef typename ft::iterator<ft::random_access_iterator_tag, T>::difference_type	difference_type;
-    		typedef T*	pointer;
-    		typedef T&	reference;
+    		typedef typename ft::iterator<std::random_access_iterator_tag, T>::iterator_category	iterator_category;
+			typedef typename ft::iterator<std::random_access_iterator_tag, T>::value_type        value_type;
+    		typedef typename ft::iterator<std::random_access_iterator_tag, T>::difference_type	difference_type;
+			typedef T*			pointer;
+    		typedef T&			reference;
 			
 			random_access_iterator() : m_ptr(nullptr) {}
 			random_access_iterator(pointer ptr) : m_ptr(ptr) {}
@@ -78,13 +78,13 @@ namespace ft
 			}
 			
 			/** -------------------------------- ARITHMETIC --------------------------------**/
-			random_access_iterator operator+(difference_type n)
+			random_access_iterator operator+(difference_type n) const
 			{
 				random_access_iterator tmp(*this);
 				tmp.m_ptr += n;
 				return (tmp);
 			}
-			random_access_iterator operator-(difference_type n)
+			random_access_iterator operator-(difference_type n) const
 			{
 				random_access_iterator tmp(*this);
 				tmp.m_ptr -= n;
