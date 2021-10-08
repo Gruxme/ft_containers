@@ -6,7 +6,7 @@
 /*   By: abiari <abiari@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/29 14:04:55 by abiari            #+#    #+#             */
-/*   Updated: 2021/10/08 19:05:57 by abiari           ###   ########.fr       */
+/*   Updated: 2021/10/08 21:09:15 by abiari           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,8 @@ namespace ft
 			vector (const vector& src): _capacity(0), _size(0), _data(nullptr) { this->operator=(src); }
 			virtual ~vector()
 			{
+				for (size_t i = 0; i < _size; i++)
+					_alloc.destroy(&_data[i]);
 				_alloc.deallocate(_data, _size);
 			}
 			
@@ -120,16 +122,9 @@ namespace ft
 				if (n > _size)
 				{
 					if (n > _capacity)
-					{
 						reserve(n);
-						for (size_t i = _size; i < n; i++)
-							_data[i] = val;
-					}
-					else
-					{
-						for (size_t i = _size; i < n; i++)
-							_data[i] = val;
-					}
+					for (size_t i = _size; i < n; i++)
+						_alloc.construct(&_data[i], val);
 					_size = n;
 				}
 			}
@@ -182,7 +177,7 @@ namespace ft
 						reserve(n);
 				for (size_t i = 0; i < n; ++i)
 				{
-					_data[i] = *first;
+					_alloc.construct(&_data[i], *first);
 					first++;
 					_size++;
 				}
@@ -192,7 +187,7 @@ namespace ft
 				if (n > _capacity)
 						reserve(n);
 				for (size_t i = 0; i < n; i++)
-					_data[i] = val;
+					_alloc.construct(&_data[i], val);
 				_size = n;
 			}
 			void	push_back(const value_type& val)
@@ -204,7 +199,7 @@ namespace ft
 					else
 						reserve(_capacity * 2);
 				}
-				_data[_size] = val;
+				_alloc.construct(&_data[_size], val);
 				_size++;
 			}
 			void	pop_back() { _size--; }
@@ -220,7 +215,7 @@ namespace ft
 				}
 				for (difference_type i = _size - 1; i >= positionIndex; i--)
 					_data[i + 1] = _data[i];
-				_data[positionIndex] = val;
+				_alloc.construct(&_data[positionIndex], val);
 				_size++;
 				return (iterator(_data + positionIndex));
 			}
@@ -237,7 +232,7 @@ namespace ft
 				for (difference_type i = _size - 1; i >= positionIndex; i--)
 					_data[i + n] = _data[i];
 				for (size_t i = 0; i < n; i++)
-					_data[positionIndex + i] = val;
+					_alloc.construct(&_data[positionIndex + i], val);
 				_size += n;
 			}
 			template <class InputIterator>
@@ -256,7 +251,7 @@ namespace ft
 					_data[i + n] = _data[i];
 				for (size_type i = 0; i < n; i++)
 				{
-					_data[positionIndex + i] = *first;
+					_alloc.construct(&_data[positionIndex + i], *first);
 					first++;
 				}
 				_size += n;
@@ -296,11 +291,8 @@ namespace ft
 			}
 			void		clear()
 			{
-				if(!ft::is_integral<value_type>::value)
-				{
-					for (size_t i = 0; i < _size; i++)
-						_alloc.destroy(_data + i);
-				}
+				for (size_t i = 0; i < _size; i++)
+					_alloc.destroy(_data + i);
 				_size = 0;
 			}
 			/** -------------------------------- GETTERS --------------------------------**/

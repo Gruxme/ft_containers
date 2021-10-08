@@ -3206,10 +3206,10 @@ int main(void)
 	std::cout << RED << "*------------------------ Testing the vector ------------------------*" << RESET << std::endl;
 	// sleep(1);
     signal(SIGALRM, alarm_handler);
-    // iterator_tests();
-    // const_iterator_tests();
-    // reverse_iterator_tests();
-	// reverse_iterator_with_ft_vector();
+    iterator_tests();
+    const_iterator_tests();
+    reverse_iterator_tests();
+	reverse_iterator_with_ft_vector();
     vector_tests();
 
 
