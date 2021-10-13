@@ -6,7 +6,7 @@
 /*   By: abiari <abiari@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/29 14:04:55 by abiari            #+#    #+#             */
-/*   Updated: 2021/10/08 21:09:15 by abiari           ###   ########.fr       */
+/*   Updated: 2021/10/09 14:24:26 by abiari           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -230,7 +230,7 @@ namespace ft
 						reserve(_capacity * 2);
 				}
 				for (difference_type i = _size - 1; i >= positionIndex; i--)
-					_data[i + n] = _data[i];
+					_alloc.construct(&_data[i + n], _data[i]);
 				for (size_t i = 0; i < n; i++)
 					_alloc.construct(&_data[positionIndex + i], val);
 				_size += n;
@@ -248,7 +248,7 @@ namespace ft
 						reserve(_capacity * 2);
 				}
 				for (difference_type i = _size - 1; i >= positionIndex; i--)
-					_data[i + n] = _data[i];
+					_alloc.construct(&_data[i + n], _data[i]);
 				for (size_type i = 0; i < n; i++)
 				{
 					_alloc.construct(&_data[positionIndex + i], *first);
