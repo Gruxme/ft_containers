@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   tools.hpp                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: abiari <abiari@student.1337.ma>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/10/16 14:38:50 by abiari            #+#    #+#             */
+/*   Updated: 2021/10/16 14:38:52 by abiari           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #pragma once
 #include <type_traits>
 
@@ -90,9 +102,6 @@ namespace ft
 		return true;
 	}
 
-	template <class T1, class T2>
-	pair<T1,T2> make_pair (T1 x, T2 y)
-	{ return ( pair<T1,T2>(x,y) ); }
 
 	template <class T1, class T2>
 	struct pair
@@ -132,4 +141,8 @@ namespace ft
 	template <class T1, class T2>
   	bool operator>= (const pair<T1,T2>& lhs, const pair<T1,T2>& rhs)
 	{ return !(lhs<rhs); }
+	
+	template <class T1, class T2>
+	pair<T1,T2> make_pair (T1 x, T2 y)
+	{ return ( pair<T1,T2>(x,y) ); }
 }

@@ -6,15 +6,15 @@
 /*   By: abiari <abiari@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/29 14:04:55 by abiari            #+#    #+#             */
-/*   Updated: 2021/10/09 14:24:26 by abiari           ###   ########.fr       */
+/*   Updated: 2021/10/18 11:50:29 by abiari           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-#include "random_access_iterator.hpp"
-#include "iterator_traits.hpp"
-#include "reverse_iterator.hpp"
+#include "../iterators/random_access_iterator.hpp"
+#include "../iterators/iterator_traits.hpp"
+#include "../iterators/reverse_iterator.hpp"
 #include "../tools.hpp"
 #include <memory>
 #include <iterator>
@@ -202,7 +202,11 @@ namespace ft
 				_alloc.construct(&_data[_size], val);
 				_size++;
 			}
-			void	pop_back() { _size--; }
+			void	pop_back()
+			{
+				_alloc.destroy(&_data[size - 1]);
+				_size--;
+			}
 			iterator	insert(iterator position, const value_type& val)
 			{
 				difference_type	positionIndex = std::distance(begin(), position);

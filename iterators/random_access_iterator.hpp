@@ -6,7 +6,7 @@
 /*   By: abiari <abiari@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/01 15:20:34 by abiari            #+#    #+#             */
-/*   Updated: 2021/10/04 15:39:16 by abiari           ###   ########.fr       */
+/*   Updated: 2021/10/18 16:05:13 by abiari           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 namespace ft
 {
 	template< class T >
-	class random_access_iterator : public ft::iterator<std::random_access_iterator_tag, T>
+	class random_access_iterator
 	{
 		public:
     		typedef typename ft::iterator<std::random_access_iterator_tag, T>::iterator_category	iterator_category;
@@ -153,4 +153,5 @@ namespace ft
 		return (lhs.base() <= rhs.base());
 	}
 }
+
 
