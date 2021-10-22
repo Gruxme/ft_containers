@@ -6,7 +6,7 @@
 /*   By: abiari <abiari@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/16 14:38:50 by abiari            #+#    #+#             */
-/*   Updated: 2021/10/16 14:38:52 by abiari           ###   ########.fr       */
+/*   Updated: 2021/10/21 19:25:27 by abiari           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,7 +142,7 @@ namespace ft
   	bool operator>= (const pair<T1,T2>& lhs, const pair<T1,T2>& rhs)
 	{ return !(lhs<rhs); }
 	
-	template <class T1, class T2>
-	pair<T1,T2> make_pair (T1 x, T2 y)
-	{ return ( pair<T1,T2>(x,y) ); }
+	template <class U, class Y>
+	pair<U, Y> make_pair (U x, Y y)
+	{ return ( pair<U, Y>(x,y) ); }
 }
