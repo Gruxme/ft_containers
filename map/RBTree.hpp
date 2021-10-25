@@ -6,7 +6,7 @@
 /*   By: abiari <abiari@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/16 14:38:42 by abiari            #+#    #+#             */
-/*   Updated: 2021/10/22 17:47:20 by abiari           ###   ########.fr       */
+/*   Updated: 2021/10/25 14:44:45 by abiari           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,21 +17,25 @@
 #include <string>
 #include <iostream>
 
-template<typename Pair, typename Alloc, typename Comp>
+namespace	ft
+{
+template<typename Pair, typename Alloc = std::allocator<Pair> , typename Comp = std::less<typename Pair::first_type> >
 class	RBTree
 {
-	public:
-		typedef	typename	Pair::first_type	key_type;
 	private:
 		enum	Color {RED, BLACK, DBLACK};
-		struct Node
+		struct nodeStruct
 		{
-			Pair	*data;
-			Node*	left;
-			Node*	right;
-			Node*	parent;
-			bool	color ;
+			Pair		*data;
+			nodeStruct*	left;
+			nodeStruct*	right;
+			nodeStruct*	parent;
+			short		color;
 		};
+	public:
+		typedef	typename	Pair::first_type	key_type;
+		typedef	nodeStruct	Node;
+	private:
 		Node*	_newNode(Pair const &val)
 		{
 			Node*	node = _nodeAlloc.allocate(1);
@@ -83,12 +87,12 @@ class	RBTree
 		{
 			if (root == NULL)
 				return pt;
-			if (pt->data->first < root->data->first)
+			if (_comp(pt->data->first, root->data->first))
 			{
 				root->left = _BSTInsert(root->left, pt);
 				root->left->parent = root;
 			}
-			else if (pt->data->first > root->data->first)
+			else if (!_comp(pt->data->first, root->data->first))
 			{
 				root->right = _BSTInsert(root->right, pt);
 				root->right->parent = root;
@@ -201,6 +205,8 @@ class	RBTree
 		}
 		Node*	_min(Node* pt)
 		{
+			if(!pt)
+				return NULL;
 			Node*	node = pt;
 			while (node->left != NULL)
 			{
@@ -210,6 +216,8 @@ class	RBTree
 		}
 		Node*	_max(Node* pt)
 		{
+			if(!pt)
+				return NULL;
 			Node*	node = pt;
 			while (node->right != NULL)
 			{
@@ -219,6 +227,8 @@ class	RBTree
 		}
 		Node*	_inOrderSuccessor(Node*	pt)
 		{
+			if(!pt)
+				return NULL;
 			if(pt->right != NULL)
 				return _min(pt->right);
 			Node*	node = pt;
@@ -232,6 +242,8 @@ class	RBTree
 		}
 		Node*	_inOrderPredecessor(Node* pt)
 		{
+			if(!pt)
+				return NULL;
 			if(pt->left != NULL)
 				return _max(pt->left);
 			Node*	node = pt;
@@ -247,6 +259,11 @@ class	RBTree
 		void	_deleteChild(Node* node)
 		{
 			Node* parent = node->parent;
+			if(!parent)
+			{
+				_deleteNode(node);
+				return ;
+			}
 			if(node == parent->left)
 			{
 				_deleteNode(node);
@@ -400,41 +417,172 @@ class	RBTree
 				return ;
 			}
 		}
-		
-	public:
-		RBTree(): _root(nullptr) {}
-		void	insert(Pair const &val)
+		void	_clear(Node* root)
 		{
-			Node*	pt = _newNode(val);
-			if(!find(val.first))
+			if(!root)
+				return;
+			_clear(root->left);
+			_clear(root->right);
+			_deleteChild(root);
+		}
+		void	_copyFromOther(Node *&root, const Node* src)
+		{
+			if(src == NULL)
+				root = NULL;
+			else
 			{
-				_root = _BSTInsert(_root, pt);
-				_postInsertRebalance(pt);
+				root = _newNode(*(src->data));
+				root->color = src->color;
+				root->left = src->left;
+				root->right = src->right;
+				root->parent = src->parent;
+				_copyFromOther(root->left, src->left);
+				_copyFromOther(root->right, src->right);
 			}
 		}
-		Node*	find(typename Pair::first_type const &key) const
+	public:
+		RBTree(): _root(nullptr), _size(0) {}
+		RBTree(RBTree const &src): _root(nullptr), _size(0)
+		{
+			this->operator=(src);
+		}
+		virtual	~RBTree()
+		{
+			if(_root)
+			{
+				_clear(_root);
+				_root = NULL;
+			}
+		}
+		RBTree	&operator=(RBTree const &src)
+		{
+			clear();
+			_copyFromOther(_root, src._root);
+			_size = src._size;
+			return *this;
+		}
+		ft::pair<Node*, bool>	insert(Pair const &val)
+		{
+			Node*	pt = find(val.first);
+			if(!pt)
+			{
+				pt = _newNode(val);
+				_root = _BSTInsert(_root, pt);
+				_postInsertRebalance(pt);
+				_size++;
+				return ft::make_pair(pt, true);
+			}
+			return ft::make_pair(pt, false);
+		}
+		// Node*	insert(Node* position, Pair const &val)
+		// {
+		// 	Node*	pt = find(val.first);
+		// 	if(!pt)
+		// 	{
+		// 		if (find(position) && _comp(position->data->first, val.first))
+		// 		{
+		// 			position->right = _newNode(val);
+		// 			position->right->parent = position;
+		// 			_postInsertRebalance(position->right);
+		// 			return (position->right);
+		// 		}
+		// 		else
+		// 			return insert(val).first;
+		// 	}
+		// 	else
+		// 		return pt;
+			
+		// }
+		Node*	find(key_type const &key)
 		{
 			if (!_root)
 				return NULL;
 			Node*	root = _root;
 			while(root != NULL)
 			{
-				if(root->data->first == key)
+				if(!_comp(root->data->first, key) && !_comp(key, root->data->first))
 					return root;
-				if(root->data->first > key)
+				if(!_comp(root->data->first, key))
 					root = root->left;
 				else
 					root= root->right;
 			}
-			// std::cout << "key not found" << std::endl;
 			return NULL;
 		}
-		void	remove(key_type const &key)
+		Node*	find(key_type const &key) const
+		{
+			if (!_root)
+				return NULL;
+			Node*	root = _root;
+			while(root != NULL)
+			{
+				if(!_comp(root->data->first, key) && !_comp(key, root->data->first))
+					return root;
+				if(!_comp(root->data->first, key))
+					root = root->left;
+				else
+					root= root->right;
+			}
+			return NULL;
+		}
+		Node*	findSuccessor(key_type const &key)
+		{
+			Node*	successor = NULL;
+			Node*	root = _root;
+			while (root != NULL)
+			{
+				if(_comp(key, root->data->first))
+				{
+					successor = root;
+					root = root->left;
+				}
+				else if(!_comp(key, root->data->first))
+					root = root->right;
+			}
+			return successor;
+		}
+		size_t	remove(key_type const &key)
 		{
 			Node* toDelete = find(key);
 			if (!toDelete)
-				return ;
+				return 0;
 			_remove(toDelete, toDelete);
+			_size--;
+			return 1;
+		}
+		Node*	findSuccessor(key_type const &key) const
+		{
+			Node*	successor = NULL;
+			Node*	root = _root;
+			while (root != NULL)
+			{
+				if(_comp(key, root->data->first))
+				{
+					successor = root;
+					root = root->left;
+				}
+				else if(!_comp(key, root->data->first))
+					root = root->right;
+			}
+			return successor;
+		}
+		size_t	remove(key_type const &key)
+		{
+			Node* toDelete = find(key);
+			if (!toDelete)
+				return 0;
+			_remove(toDelete, toDelete);
+			_size--;
+			return 1;
+		}
+		void	clear()
+		{
+			if(_root)
+			{
+				_clear(_root);
+				_root = NULL;
+				_size = 0;
+			}
 		}
 		void	print()
 		{
@@ -448,4 +596,6 @@ class	RBTree
 		Node*	_root;
 		Comp	_comp;
 		Alloc	_alloc;
+		size_t	_size;
 };
+}
