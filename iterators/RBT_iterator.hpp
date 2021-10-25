@@ -6,7 +6,7 @@
 /*   By: abiari <abiari@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/16 14:38:36 by abiari            #+#    #+#             */
-/*   Updated: 2021/10/23 16:00:04 by abiari           ###   ########.fr       */
+/*   Updated: 2021/10/25 19:57:33 by abiari           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,15 @@
 
 namespace ft
 {
-	template<typename Pair>
+	template<typename Pair, typename Node, typename Tree>
 	class	RBT_iterator
 	{
+		public:
+			typedef typename	std::bidirectional_iterator_tag		iterator_category;
+			typedef				Pair								value_type;
+			typedef 			ptrdiff_t							difference_type;
+			typedef				Pair*								pointer;
+			typedef				Pair&								reference;
 		private:
 			/** -------------------------------- Successor/predecessor --------------------------------**/
 			Node *_min(Node *pt)
@@ -65,18 +71,10 @@ namespace ft
 				}
 				return parent;
 			}
-
 		public:
-			typedef typename	std::bidirectional_iterator_tag		iterator_category;
-			typedef	typename	ft::RBTree<Pair>::Node				Node;
-			typedef				Pair								value_type;
-			typedef 			ptrdiff_t							difference_type;
-			typedef				Pair*								pointer;
-			typedef				Pair&								reference;
-
-			RBT_iterator() : _nodePtr(nullptr), _last(nullptr) {}
-			RBT_iterator(pointer node, pointer last = nullptr) : _nodePtr(node), _last(last) {}
-			RBT_iterator(const RBT_iterator& src) : _nodePtr(src.base()), _last(src._last) {}
+			RBT_iterator() : _nodePtr(NULL), _ob(NULL) {}
+			RBT_iterator(Node* node, Tree const *ob) : _nodePtr(node), _ob(ob) {}
+			RBT_iterator(const RBT_iterator& src) : _nodePtr(src.base()), _ob(src._ob) {}
 			virtual ~RBT_iterator() {}
 			
 			/** -------------------------------- ASSIGNMENT --------------------------------**/
@@ -84,13 +82,13 @@ namespace ft
 			RBT_iterator	&operator=(const RBT_iterator &src)
 			{
 				_nodePtr = src.base();
-				_last = src._last;
+				_ob = src._ob;
 				return *this;
 			}
 			
 			/** -------------------------------- MEMBER ACCESS --------------------------------**/
 	
-			reference	operator*() const { return _nodePtr->data;}
+			reference	operator*() const { return *(_nodePtr->data);}
 			pointer		operator->() const { return &(operator*()); }
 
 			/** -------------------------------- INCREMENT/DECREMENT --------------------------------**/
@@ -102,10 +100,9 @@ namespace ft
 			}
 			RBT_iterator	&operator--()
 			{
-				if(!_nodePtr && _last)
+				if(!_nodePtr && _ob)
 				{
-					_nodePtr = _last;
-					_last = null;
+					_nodePtr = _ob->max();
 					return *this;
 				}
 				_nodePtr = _inOrderPredecessor(_nodePtr);
@@ -114,19 +111,13 @@ namespace ft
 			RBT_iterator	operator++(int)
 			{
 				RBT_iterator	tmp = *this;
-				_nodePtr = _inOrderSuccessor(_nodePtr);
+				++(*this);
 				return tmp;
 			}
 			RBT_iterator	operator--(int)
 			{
 				RBT_iterator	tmp = *this;
-				if(!_nodePtr && _last)
-				{
-					_nodePtr = _last;
-					_last = null;
-					return *tmp;
-				}
-				_nodePtr = _inOrderPredecessor(_nodePtr);
+				--(*this);
 				return tmp;
 			}
 			
@@ -134,24 +125,16 @@ namespace ft
 			Node*	base() const { return _nodePtr; }
 			
 			// provide for implicit conversion from iterator to const_iterator
-			operator	RBT_iterator<const value_type>() const
+			operator	RBT_iterator<const value_type, Node, Tree>() const
 			{
-				return RBT_iterator<const value_type>(_nodePtr);
+				return RBT_iterator<const value_type, Node, Tree>(_nodePtr, _ob);
 			}
+			friend bool	operator==(RBT_iterator const &lhs, RBT_iterator const &rhs)	{	return lhs._nodePtr == rhs._nodePtr;	}
+			friend bool	operator!=(RBT_iterator const &lhs, RBT_iterator const &rhs)	{	return lhs._nodePtr != rhs._nodePtr;	}
+
 		protected:
-			Node*	_nodePtr;
-			Node*	_last;
+			Node*		_nodePtr;
+			Tree const *_ob;
 	};
-/** -------------------------------- EQUAL/NOT EQUAL --------------------------------**/
-template<typename Pair>
-bool	operator==(RBT_iterator<Pair> const &lhs, RBT_iterator<Pair> const &rhs)
-{
-	return lhs._nodePtr->first == rhs._nodePtr->first;
-}
-template<typename Pair>
-bool	operator!=(RBT_iterator<Pair> const &lhs, RBT_iterator<Pair> const &rhs)
-{
-	return lhs._nodePtr->first != rhs._nodePtr->first;
-}
 }
 

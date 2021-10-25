@@ -6,7 +6,7 @@
 /*   By: abiari <abiari@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/01 18:40:37 by abiari            #+#    #+#             */
-/*   Updated: 2021/10/16 14:38:11 by abiari           ###   ########.fr       */
+/*   Updated: 2021/10/25 18:40:45 by abiari           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,11 @@ namespace	ft
 			}
 			iterator_type	base() const { return _iter; }
 			
-			reference			operator*() const { return (*(_iter - 1)); }
+			reference			operator*() const
+			{
+				iterator_type	tmp = _iter;
+				return (*(--tmp));
+			}
 			pointer				operator->() const { return &(operator*()); }
 			reference			operator[](difference_type n) const { return (_iter[-n - 1]); }
 			reverse_iterator	operator+(difference_type n) const
@@ -50,7 +54,7 @@ namespace	ft
 			}
 			reverse_iterator&	operator++()
 			{
-				this->_iter -= 1;
+				this->_iter--;
 				return (*this);
 			}
 			reverse_iterator	operator++(int)
@@ -73,7 +77,7 @@ namespace	ft
 			}
 			reverse_iterator&	operator--()
 			{
-				this->_iter += 1;
+				this->_iter++;
 				return (*this);
 			}
 			reverse_iterator	operator--(int)

@@ -6,12 +6,14 @@
 /*   By: abiari <abiari@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/16 14:38:42 by abiari            #+#    #+#             */
-/*   Updated: 2021/10/25 14:44:45 by abiari           ###   ########.fr       */
+/*   Updated: 2021/10/25 20:31:38 by abiari           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 #include "../tools.hpp"
+#include "../iterators/RBT_iterator.hpp"
+#include "../iterators/reverse_iterator.hpp"
 #include <functional>
 #include <memory>
 #include <string>
@@ -19,7 +21,7 @@
 
 namespace	ft
 {
-template<typename Pair, typename Alloc = std::allocator<Pair> , typename Comp = std::less<typename Pair::first_type> >
+template<typename Pair, typename Alloc, typename Comp>
 class	RBTree
 {
 	private:
@@ -35,7 +37,10 @@ class	RBTree
 	public:
 		typedef	typename	Pair::first_type	key_type;
 		typedef	nodeStruct	Node;
-	private:
+		typedef				ft::RBT_iterator<Pair, Node, RBTree>				iterator;
+		typedef				ft::RBT_iterator<const Pair, Node, RBTree>			const_iterator;
+		typedef				ft::reverse_iterator<iterator>						reverse_iterator;
+		typedef				ft::reverse_iterator<const_iterator>				const_reverse_iterator;
 		Node*	_newNode(Pair const &val)
 		{
 			Node*	node = _nodeAlloc.allocate(1);
@@ -215,6 +220,28 @@ class	RBTree
 			return node;
 		}
 		Node*	_max(Node* pt)
+		{
+			if(!pt)
+				return NULL;
+			Node*	node = pt;
+			while (node->right != NULL)
+			{
+				node = node->right;
+			}
+			return node;
+		}
+		Node*	_min(Node* pt) const
+		{
+			if(!pt)
+				return NULL;
+			Node*	node = pt;
+			while (node->left != NULL)
+			{
+				node = node->left;
+			}
+			return node;
+		}
+		Node*	_max(Node* pt) const
 		{
 			if(!pt)
 				return NULL;
@@ -461,71 +488,68 @@ class	RBTree
 			_size = src._size;
 			return *this;
 		}
-		ft::pair<Node*, bool>	insert(Pair const &val)
+		Node*	min()
 		{
-			Node*	pt = find(val.first);
+			return _min(_root);
+		}
+		Node*	min() const
+		{
+			return _min(_root);
+		}
+		Node*	max()
+		{
+			return _max(_root);
+		}
+		Node*	max() const
+		{
+			return _max(_root);
+		}
+		ft::pair<iterator, bool>	insert(Pair const &val)
+		{
+			Node*	pt = find(val.first).base();
 			if(!pt)
 			{
 				pt = _newNode(val);
 				_root = _BSTInsert(_root, pt);
 				_postInsertRebalance(pt);
 				_size++;
-				return ft::make_pair(pt, true);
+				return ft::make_pair(iterator(pt, this), true);
 			}
-			return ft::make_pair(pt, false);
+			return ft::make_pair(iterator(pt, this), false);
 		}
-		// Node*	insert(Node* position, Pair const &val)
-		// {
-		// 	Node*	pt = find(val.first);
-		// 	if(!pt)
-		// 	{
-		// 		if (find(position) && _comp(position->data->first, val.first))
-		// 		{
-		// 			position->right = _newNode(val);
-		// 			position->right->parent = position;
-		// 			_postInsertRebalance(position->right);
-		// 			return (position->right);
-		// 		}
-		// 		else
-		// 			return insert(val).first;
-		// 	}
-		// 	else
-		// 		return pt;
-			
-		// }
-		Node*	find(key_type const &key)
+		iterator	find(key_type const &key)
 		{
 			if (!_root)
-				return NULL;
+				return iterator(NULL, this);
 			Node*	root = _root;
 			while(root != NULL)
 			{
 				if(!_comp(root->data->first, key) && !_comp(key, root->data->first))
-					return root;
+					return iterator(root, this);
 				if(!_comp(root->data->first, key))
 					root = root->left;
 				else
 					root= root->right;
 			}
-			return NULL;
+			return iterator(NULL, this);;
 		}
-		Node*	find(key_type const &key) const
+		const_iterator	find(key_type const &key) const
 		{
 			if (!_root)
-				return NULL;
+				return iterator(NULL, this);
 			Node*	root = _root;
 			while(root != NULL)
 			{
 				if(!_comp(root->data->first, key) && !_comp(key, root->data->first))
-					return root;
+					return iterator(root, this);
 				if(!_comp(root->data->first, key))
 					root = root->left;
 				else
 					root= root->right;
 			}
-			return NULL;
+			return iterator(NULL, this);
 		}
-		Node*	findSuccessor(key_type const &key)
+		iterator	findSuccessor(key_type const &key)
 		{
 			Node*	successor = NULL;
 			Node*	root = _root;
@@ -539,18 +563,9 @@ class	RBTree
 				else if(!_comp(key, root->data->first))
 					root = root->right;
 			}
-			return successor;
+			return iterator(successor, this);
 		}
-		size_t	remove(key_type const &key)
-		{
-			Node* toDelete = find(key);
-			if (!toDelete)
-				return 0;
-			_remove(toDelete, toDelete);
-			_size--;
-			return 1;
-		}
-		Node*	findSuccessor(key_type const &key) const
+		const_iterator	findSuccessor(key_type const &key) const
 		{
 			Node*	successor = NULL;
 			Node*	root = _root;
@@ -564,16 +579,20 @@ class	RBTree
 				else if(!_comp(key, root->data->first))
 					root = root->right;
 			}
-			return successor;
+			return iterator(successor, this);
 		}
 		size_t	remove(key_type const &key)
 		{
-			Node* toDelete = find(key);
+			Node* toDelete = find(key).base();
 			if (!toDelete)
 				return 0;
 			_remove(toDelete, toDelete);
 			_size--;
 			return 1;
+		}
+		size_t	size() const
+		{
+			return _size;
 		}
 		void	clear()
 		{
@@ -584,6 +603,15 @@ class	RBTree
 				_size = 0;
 			}
 		}
+		// iterators
+		iterator				begin() { return iterator(_min(_root), this); }
+		const_iterator			begin() const { return iterator(_min(_root), this); }
+		iterator				end() { return iterator(NULL, this); }
+		const_iterator			end() const { return iterator(NULL, this); }
+		reverse_iterator		rbegin() { return reverse_iterator(iterator(_max(_root), this)); }
+		const_reverse_iterator	rbegin() const { return const_reverse_iterator(iterator(_max(_root), this)); }
+		reverse_iterator		rend() { return reverse_iterator(iterator(NULL, this)); }
+		const_reverse_iterator	rend() const { return const_reverse_iterator(iterator(NULL, this)); }
 		void	print()
 		{
 			if (_root)

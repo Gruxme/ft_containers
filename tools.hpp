@@ -6,7 +6,7 @@
 /*   By: abiari <abiari@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/16 14:38:50 by abiari            #+#    #+#             */
-/*   Updated: 2021/10/21 19:25:27 by abiari           ###   ########.fr       */
+/*   Updated: 2021/10/25 20:06:29 by abiari           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,7 +94,7 @@ namespace ft
 	{
 		while (first1 != last1)
 		{
-			if(!pred(*first1 == *first2))
+			if(!pred(*first1, *first2))
 				return false;
 			++first1;
 			++first2;
@@ -115,7 +115,7 @@ namespace ft
 		pair(): first(T1()), second(T2()) {}
 		pair (const first_type& a, const second_type& b): first(a), second(b) {}
 		template<class U, class V>
-		pair (const pair<U,V>& pr) { this->operator=(pr); }
+		pair (const pair<U,V>& pr): first(pr.first), second(pr.second) {}
 		pair& operator= (const pair& pr)
 		{
 			this->first = pr.first;
