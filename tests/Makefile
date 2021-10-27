@@ -22,7 +22,7 @@ map:
 stack:
 	@$(COMPILER) $(FLAGS)	Stack_tests.cpp -o stack.out 
 
-# set:
-# 	@$(COMPILER) $(FLAGS)	Set_tests.cpp -o set.out 
+set:
+	@$(COMPILER) $(FLAGS)	Set_tests.cpp -o set.out 
 clean:
 	rm -f vector.out map.out stack.out set.out
