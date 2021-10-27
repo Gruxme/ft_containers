@@ -6,7 +6,7 @@
 /*   By: abiari <abiari@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/16 14:38:36 by abiari            #+#    #+#             */
-/*   Updated: 2021/10/25 19:57:33 by abiari           ###   ########.fr       */
+/*   Updated: 2021/10/27 11:10:08 by abiari           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,6 +95,11 @@ namespace ft
 			
 			RBT_iterator	&operator++()
 			{
+				if(!_nodePtr && _ob)
+				{
+					_nodePtr = _ob->min();
+					return *this;
+				}
 				_nodePtr = _inOrderSuccessor(_nodePtr);
 				return *this;
 			}

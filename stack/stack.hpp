@@ -15,7 +15,7 @@ namespace ft
 			bool				empty() const { return c.empty(); }
 			size_type			size() const { return c.size(); }
 			value_type& 		top() { return c.back(); }
-			const value_type&	top() const { return c.top(); }
+			const value_type&	top() const { return c.back(); }
 			void				push(const value_type& val) { return c.push_back(val); }
 			void				pop() {return c.pop_back(); }
 			template <class type, class cntr>

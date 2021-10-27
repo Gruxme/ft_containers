@@ -6,7 +6,7 @@
 /*   By: abiari <abiari@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/16 14:38:42 by abiari            #+#    #+#             */
-/*   Updated: 2021/10/25 20:31:38 by abiari           ###   ########.fr       */
+/*   Updated: 2021/10/27 13:13:51 by abiari           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include "../iterators/RBT_iterator.hpp"
 #include "../iterators/reverse_iterator.hpp"
 #include <functional>
+#include <algorithm>
 #include <memory>
 #include <string>
 #include <iostream>
@@ -35,8 +36,8 @@ class	RBTree
 			short		color;
 		};
 	public:
-		typedef	typename	Pair::first_type	key_type;
-		typedef	nodeStruct	Node;
+		typedef	typename	Pair::first_type									key_type;
+		typedef				nodeStruct											Node;
 		typedef				ft::RBT_iterator<Pair, Node, RBTree>				iterator;
 		typedef				ft::RBT_iterator<const Pair, Node, RBTree>			const_iterator;
 		typedef				ft::reverse_iterator<iterator>						reverse_iterator;
@@ -168,7 +169,7 @@ class	RBTree
 						/* pt is right child of its parent -> left-rotation required */
 						if (pt == parent->right)
 						{
-							_rotateLeft(pt),
+							_rotateLeft(parent),
 							pt = parent;
 							parent = pt->parent;
 						}
@@ -452,19 +453,18 @@ class	RBTree
 			_clear(root->right);
 			_deleteChild(root);
 		}
-		void	_copyFromOther(Node *&root, const Node* src)
+		void	_copyFromOther(Node* root, const Node* src)
 		{
 			if(src == NULL)
 				root = NULL;
 			else
 			{
-				root = _newNode(*(src->data));
-				root->color = src->color;
-				root->left = src->left;
-				root->right = src->right;
-				root->parent = src->parent;
-				_copyFromOther(root->left, src->left);
-				_copyFromOther(root->right, src->right);
+				Node*	pt = NULL;
+				if(src)
+					pt = _newNode(*(src->data));
+				_root = _BSTInsert(_root, pt);
+				_copyFromOther(_root, src->left);
+				_copyFromOther(_root, src->right);
 			}
 		}
 	public:
@@ -487,6 +487,11 @@ class	RBTree
 			_copyFromOther(_root, src._root);
 			_size = src._size;
 			return *this;
+		}
+		void	init(Comp comp, Alloc alloc)
+		{
+			this->_comp = comp;
+			this->_alloc = alloc;
 		}
 		Node*	min()
 		{
@@ -513,7 +518,7 @@ class	RBTree
 				_root = _BSTInsert(_root, pt);
 				_postInsertRebalance(pt);
 				_size++;
-				return ft::make_pair(iterator(pt, this), true);
+				return ft::make_pair(find(val.first), true);
 			}
 			return ft::make_pair(iterator(pt, this), false);
 		}
@@ -531,7 +536,7 @@ class	RBTree
 				else
 					root= root->right;
 			}
-			return iterator(NULL, this);;
+			return iterator(NULL, this);
 		}
 		const_iterator	find(key_type const &key) const
 		{
@@ -608,10 +613,15 @@ class	RBTree
 		const_iterator			begin() const { return iterator(_min(_root), this); }
 		iterator				end() { return iterator(NULL, this); }
 		const_iterator			end() const { return iterator(NULL, this); }
-		reverse_iterator		rbegin() { return reverse_iterator(iterator(_max(_root), this)); }
-		const_reverse_iterator	rbegin() const { return const_reverse_iterator(iterator(_max(_root), this)); }
-		reverse_iterator		rend() { return reverse_iterator(iterator(NULL, this)); }
-		const_reverse_iterator	rend() const { return const_reverse_iterator(iterator(NULL, this)); }
+		reverse_iterator		rbegin() { return reverse_iterator(end()); }
+		const_reverse_iterator	rbegin() const { return const_reverse_iterator(end()); }
+		reverse_iterator		rend() { return reverse_iterator(begin()); }
+		const_reverse_iterator	rend() const { return const_reverse_iterator(begin()); }
+		void	swap(RBTree& x)
+		{
+			std::swap(this->_root, x._root);
+			std::swap(this->_size, x._size);
+		}
 		void	print()
 		{
 			if (_root)

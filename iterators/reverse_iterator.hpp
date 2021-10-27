@@ -6,7 +6,7 @@
 /*   By: abiari <abiari@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/01 18:40:37 by abiari            #+#    #+#             */
-/*   Updated: 2021/10/25 18:40:45 by abiari           ###   ########.fr       */
+/*   Updated: 2021/10/27 14:35:59 by abiari           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,27 +28,31 @@ namespace	ft
 			typedef	typename iterator_traits<Iterator>::reference			reference;
 			
 			reverse_iterator() : _iter() {}
-			explicit reverse_iterator (iterator_type it) : _iter(it) {}
+			explicit reverse_iterator (iterator_type it) : _iter(--it) {}
 			reverse_iterator (const reverse_iterator& rev_it) { this->operator=(rev_it); }
 			template<typename Iter>
-			reverse_iterator (reverse_iterator<Iter> const& it): _iter(it.base()) {}
+			reverse_iterator (reverse_iterator<Iter> const& it): _iter(--it.base()) {}
 			reverse_iterator& operator=( const reverse_iterator& other )
 			{
-				this->_iter = other.base();
+				this->_iter = --other.base();
 				return *this;
 			}
-			iterator_type	base() const { return _iter; }
+			iterator_type	base() const
+			{
+				iterator_type tmp = _iter;
+				return ++tmp;
+			}
 			
 			reference			operator*() const
 			{
 				iterator_type	tmp = _iter;
-				return (*(--tmp));
+				return (*tmp);
 			}
 			pointer				operator->() const { return &(operator*()); }
-			reference			operator[](difference_type n) const { return (_iter[-n - 1]); }
+			reference			operator[](difference_type n) const { return (_iter[-n]); }
 			reverse_iterator	operator+(difference_type n) const
 			{
-				reverse_iterator	tmp(this->_iter);
+				reverse_iterator	tmp(this->base());
 				tmp._iter -= n;
 				return tmp; 
 			}
@@ -65,12 +69,12 @@ namespace	ft
 			}
 			reverse_iterator&	operator+=(difference_type n)
 			{
-				this->_iter -= n;
+				this->_iter -= n;	
 				return (*this);
 			}
 			reverse_iterator	operator-(difference_type n) const
 			{
-				reverse_iterator	tmp(this->_iter);
+				reverse_iterator	tmp(this->base());
 				tmp._iter += n;
 				return (tmp);
 				

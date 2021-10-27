@@ -6,7 +6,7 @@
 /*   By: abiari <abiari@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/29 14:04:55 by abiari            #+#    #+#             */
-/*   Updated: 2021/10/25 18:49:45 by abiari           ###   ########.fr       */
+/*   Updated: 2021/10/27 14:15:57 by abiari           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -348,10 +348,7 @@ namespace ft
 	template <class T, class Alloc>
   		void swap (vector<T,Alloc>& x, vector<T,Alloc>& y)
 		{
-			vector<T,Alloc> tmp(x);
-			
 			x.swap(y);
-			y.swap(tmp);
 		}
 }
 
